@@ -5,7 +5,7 @@
 % for eeglab files
 [Data, Info] = swa_convertFromEEGLAB();
 % or if you have previously analysed some data
-[Data, Info, SW] = swa_load_previous();
+%[Data, Info, SW] = swa_load_previous();
 
 
 %% -- Template for envelope method -- %%
@@ -26,17 +26,6 @@ Info = swa_getInfoDefaults(Info, 'SW', 'envelope');
 
 % save the data
 swa_saveOutput(Data, Info, SW, [], 1, 0)
-
-
-%% -- Template for Regions Reference -- %%
-% set mdc specific defaults
-Info = swa_getInfoDefaults(Info, 'SW', 'MDC');
-
-[Data.SWRef, Info]  = swa_CalculateReference(Data.Raw, Info);
-[Data, Info, SW]    = swa_FindSWRef(Data, Info);
-[Data, Info, SW]    = swa_FindSWChannels(Data, Info, SW);
-[Info, SW]          = swa_FindSWTravelling(Info, SW);
-
 
 %% -- Plot the Reference Wave -- %%
 
@@ -63,5 +52,21 @@ plot(time_range, Data.SWRef(1, sample_range), ...
     'color', [0.1, 0.1, 0.1], ...
     'lineWidth', 2);
     
-    
-    
+title_name=[Info.Recording.dataFile(1:10) 'SW variables'];
+
+title(title_name);
+jpegoutname=[title_name]; % this saves the fig as jpeg
+print('-djpeg','-r200',jpegoutname)
+
+
+% store interesting variables per participant;
+max_slope=mean([SW.Ref_NegSlope]')
+ave_slope=mean(abs([SW.Ref_PeakAmp])'./([SW.Ref_PeakInd]'-[SW.Ref_DownInd]'))
+total_num_SW=length(SW)
+duration_recording=Info.Recording.dataDim(1,2)/12000;
+num_SW_permin=total_num_SW/duration_recording
+   
+save ([title_name, '.mat'], 'max_slope', 'ave_slope','total_num_SW','num_SW_permin', '-mat')
+
+
+swa_Explorer

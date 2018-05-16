@@ -32,7 +32,8 @@ if save_output
         'amplitude',           [], ...
         'globality',           [], ...
         'topo_density',        [], ...
-        'travel_angle',        []);
+         'travel_angle',        [], ...
+        'slope',        []);
 else
     output = [];  
 end
@@ -45,12 +46,13 @@ for n = 1:length(fileList)
     [Data, Info] = swa_convertFromEEGLAB([fileName, ext], filePath);
 
     % get the default parameters
-    Info = swa_getInfoDefaults(Info, 'SW', 'mdc');
+    Info = swa_getInfoDefaults(Info, 'SW', 'envelope');
 
     % change the defaults
     [Data, Info] = swa_changeReference(Data, Info);
-    Info.Parameters.Ref_Method = 'diamond';
-    Info.Parameters.Channels_Threshold = 0.60;   
+    Info.Parameters.Ref_Method = 'envelope';
+     Info.Parameters.Channels_Threshold = 0.90;   
+   % Info.Parameters.Ref_AmplitudeRelative = 4; %changed  
 
     % find the waves
     [Data.SWRef, Info]  = swa_CalculateReference (Data.Raw, Info);
@@ -105,7 +107,14 @@ for n = 1:length(fileList)
         % angle dispersion
         angle_length = abs(sum_of_angles) / length(temp_data);
         output(n).travel_angle(2) = sqrt(2 * (1 - angle_length)) / pi * 180;
-
+    
+        % mean and max slope
+        temp_data=(abs([SW.Ref_PeakAmp])'./([SW.Ref_PeakInd]'-[SW.Ref_DownInd]'))
+        output(n).slope(1) = mean([SW.Ref_NegSlope]); %max slope
+        output(n).slope(2) = mean(temp_data); % mean average slopt
+        output(n).slope(3) = std(temp_data); % std 
+        
     end
-
+save('output_SWdetection.mat','output');
 end
+
