@@ -15,7 +15,7 @@ if nargin < 3
 end
 
 % option to save the file or not (0: no, 1:yes);
-save_file = 0; 
+save_file = 1; 
 
 % option to save the summary measure outputs
 save_output = 1;
@@ -48,10 +48,10 @@ for n = 1:length(fileList)
     % get the default parameters
     Info = swa_getInfoDefaults(Info, 'SW', 'envelope');
 
-    % change the defaults
-    [Data, Info] = swa_changeReference(Data, Info);
-    Info.Parameters.Ref_Method = 'envelope';
-     Info.Parameters.Channels_Threshold = 0.90;   
+    % change the defaults % why this exactly?
+ %   [Data, Info] = swa_changeReference(Data, Info);
+ %   Info.Parameters.Ref_Method = 'envelope';
+  %   Info.Parameters.Channels_Threshold = 0.90;   
    % Info.Parameters.Ref_AmplitudeRelative = 4; %changed  
 
     % find the waves
